@@ -88,7 +88,7 @@ GET /todos/?completed=false&limit=10
 GET /todos/{todo_id}
 ```
 
-### Update a Todo
+### Update a Todo (Full Replacement)
 ```http
 PUT /todos/{todo_id}
 Content-Type: application/json
@@ -100,7 +100,19 @@ Content-Type: application/json
 }
 ```
 
-Note: All fields in the update request are optional.
+**Note**: PUT replaces the entire todo. All fields (title, description, completed) are required.
+
+### Partially Update a Todo
+```http
+PATCH /todos/{todo_id}
+Content-Type: application/json
+
+{
+  "title": "Updated title only"
+}
+```
+
+**Note**: PATCH allows partial updates. Only the fields you provide will be updated, others remain unchanged.
 
 ### Delete a Todo
 ```http
@@ -131,11 +143,18 @@ Get all todos:
 curl -X GET "http://localhost:8000/todos/"
 ```
 
-Update a todo:
+Full update (replace entire todo):
 ```bash
 curl -X PUT "http://localhost:8000/todos/1" \
   -H "Content-Type: application/json" \
-  -d '{"title":"Learn FastAPI","completed":true}'
+  -d '{"title":"Learn FastAPI","description":"Complete the tutorial","completed":true}'
+```
+
+Partial update (update only specific fields):
+```bash
+curl -X PATCH "http://localhost:8000/todos/1" \
+  -H "Content-Type: application/json" \
+  -d '{"completed":true}'
 ```
 
 Delete a todo:

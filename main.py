@@ -72,9 +72,9 @@ def get_todo(todo_id: int, db: Session = Depends(get_db)):
     return todo
 
 @app.put("/todos/{todo_id}", response_model=TodoResponse, tags=["Todos"])
-def update_todo(todo_id: int, todo_update: TodoUpdate, db: Session = Depends(get_db)):
+def replace_todo(todo_id: int, todo_update: TodoCreate, db: Session = Depends(get_db)):
     """
-    Update a todo item
+    Replace a todo item completely (all fields required)
     """
     todo = db.query(Todo).filter(Todo.id == todo_id).first()
     if not todo:
@@ -83,6 +83,29 @@ def update_todo(todo_id: int, todo_update: TodoUpdate, db: Session = Depends(get
             detail=f"Todo with id {todo_id} not found"
         )
 
+    # Replace all fields
+    todo.title = todo_update.title
+    todo.description = todo_update.description
+    todo.completed = todo_update.completed
+    todo.updated_at = datetime.utcnow()
+
+    db.commit()
+    db.refresh(todo)
+    return todo
+
+@app.patch("/todos/{todo_id}", response_model=TodoResponse, tags=["Todos"])
+def update_todo_partial(todo_id: int, todo_update: TodoUpdate, db: Session = Depends(get_db)):
+    """
+    Partially update a todo item (only provided fields are updated)
+    """
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    if not todo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Todo with id {todo_id} not found"
+        )
+
+    # Only update fields that were provided
     update_data = todo_update.model_dump(exclude_unset=True)
 
     for field, value in update_data.items():

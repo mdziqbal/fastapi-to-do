@@ -39,32 +39,46 @@ def test_api():
     print(f"Status: {response.status_code}")
     print(f"Todo: {response.json()}")
 
-    # Test 5: Update todo
-    print(f"\n5. Updating todo {todo_id}...")
+    # Test 5: Partial update with PATCH (only title)
+    print(f"\n5. Partial update with PATCH (only title)...")
     update_data = {"title": "Updated Test Todo"}
-    response = requests.put(f"{BASE_URL}/todos/{todo_id}", json=update_data)
+    response = requests.patch(f"{BASE_URL}/todos/{todo_id}", json=update_data)
     print(f"Status: {response.status_code}")
-    print(f"Updated: {response.json()}")
+    updated = response.json()
+    print(f"Title: {updated['title']}")
+    print(f"Description preserved: {updated['description']}")
 
-    # Test 6: Mark as complete
-    print(f"\n6. Marking todo {todo_id} as complete...")
+    # Test 6: Full replacement with PUT
+    print(f"\n6. Full replacement with PUT...")
+    full_update_data = {
+        "title": "Completely New Title",
+        "description": "Completely new description",
+        "completed": False
+    }
+    response = requests.put(f"{BASE_URL}/todos/{todo_id}", json=full_update_data)
+    print(f"Status: {response.status_code}")
+    replaced = response.json()
+    print(f"Replaced: {replaced}")
+
+    # Test 7: Mark as complete
+    print(f"\n7. Marking todo {todo_id} as complete...")
     response = requests.patch(f"{BASE_URL}/todos/{todo_id}/complete")
     print(f"Status: {response.status_code}")
     print(f"Completed: {response.json()['completed']}")
 
-    # Test 7: Mark as incomplete
-    print(f"\n7. Marking todo {todo_id} as incomplete...")
+    # Test 8: Mark as incomplete
+    print(f"\n8. Marking todo {todo_id} as incomplete...")
     response = requests.patch(f"{BASE_URL}/todos/{todo_id}/incomplete")
     print(f"Status: {response.status_code}")
     print(f"Completed: {response.json()['completed']}")
 
-    # Test 8: Delete todo
-    print(f"\n8. Deleting todo {todo_id}...")
+    # Test 9: Delete todo
+    print(f"\n9. Deleting todo {todo_id}...")
     response = requests.delete(f"{BASE_URL}/todos/{todo_id}")
     print(f"Status: {response.status_code}")
 
-    # Test 9: Verify deletion
-    print(f"\n9. Verifying todo {todo_id} is deleted...")
+    # Test 10: Verify deletion
+    print(f"\n10. Verifying todo {todo_id} is deleted...")
     response = requests.get(f"{BASE_URL}/todos/{todo_id}")
     print(f"Status: {response.status_code}")
     if response.status_code == 404:
